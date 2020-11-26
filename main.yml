@@ -6,6 +6,9 @@
       apt: pkg="python-mysqldb" state=present
       delegate_to: localhost
   
+    - name: Start MySQL
+      service: name=mysql state=started
+
 
     - name: Dump all databases to hostname.sql
       mysql_db:
