@@ -6,12 +6,21 @@
       apt: pkg="python-mysqldb" state=present
       delegate_to: localhost
   
-    - name: Dump multiple databases
-      community.mysql.mysql_db:
+
+    - name: Dump all databases to hostname.sql
+      mysql_db:
         state: dump
         name: testdata
         target: /tmp/dump.sql
       delegate_to: localhost
+
+
+    # - name: Dump multiple databases
+    #   community.mysql.mysql_db:
+    #     state: dump
+    #     name: testdata
+    #     target: /tmp/dump.sql
+    #   delegate_to: localhost
 
     # - name: Archive the dump.sql
     #   archive:
