@@ -1,0 +1,62 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Adds Python MySQL support on Debian/Ubuntu
+      apt: pkg="python-mysqldb" state=present
+      delegate_to: localhost
+  
+    - name: Dump multiple databases
+      community.mysql.mysql_db:
+        state: dump
+        name: testdata
+        target: /tmp/dump.sql
+      delegate_to: localhost
+
+    # - name: Archive the dump.sql
+    #   archive:
+    #    path: /tmp/dump.sql
+    #    dest: /tmp/dump.tgz
+    #   delegate_to: localhost
+    
+    # - name: Create a zip archive of /path/to/foo
+    #   archive:
+    #     path: /tmp/dump.sql
+    #     format: zip
+    #   delegate_to: localhost
+
+    
+    # - name: Create a tar.gz archive of a single file.
+    #   community.general.archive:
+    #     path: /tmp/dump.sql
+    #     dest: /tmp/dump.gz
+    #     format: gz
+    #     force_archive: true
+    #   delegate_to: localhost
+
+    - name: Copy dump.zip (local control to host server)
+      synchronize:
+       src: /tmp/dump.sql
+       dest: /tmp/
+    
+    - name: Create a new database
+      mysql_db:
+       login_user: root
+       name: testdata
+       state: present
+
+    # - name: install unzip package
+    #   apt: name=unzip state=present force_apt_get=yes
+
+    
+    # - name: Unarchive a file that is already on the remote machine
+    #   unarchive:
+    #     src: /tmp/dump.gz
+    #     dest: /tmp
+    #     remote_src: yes
+
+    - name: Restore database
+      mysql_db:
+       name: testdata
+       state: import
+       target: /tmp/dump.sql
